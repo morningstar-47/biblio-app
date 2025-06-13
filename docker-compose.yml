@@ -1,0 +1,63 @@
+# docker-compose.yml
+# version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: mongo_biblio
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    environment:
+      MONGO_INITDB_DATABASE: biblio
+    networks:
+      - biblio-network
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend_biblio
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017
+      - DATABASE_NAME=biblio
+    networks:
+      - biblio-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  frontend:
+    build: 
+      context: ./library-management-interface
+      dockerfile: Dockerfile
+    container_name: frontend_biblio
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    networks:
+      - biblio-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  biblio-network:
+    driver: bridge
