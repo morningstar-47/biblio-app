@@ -3,7 +3,7 @@
 
 services:
   mongo:
-    image: mongo:6.0
+    image: mongo:latest
     container_name: mongo_biblio
     restart: always
     ports:
