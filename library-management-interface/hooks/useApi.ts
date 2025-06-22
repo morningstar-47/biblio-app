@@ -12,6 +12,7 @@ import type {
   Editeur,
   Categorie,
   ApiResponse,
+  SuggestBudgetResponse,
 } from "../types/api"
 
 const API_BASE_URL = "http://localhost:8000"
@@ -364,4 +365,27 @@ export function useAjouterCategorie() {
   }
 
   return { ajouterCategorie, loading, error }
+}
+
+export function useSuggestBudget() {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const suggest = async (targetSales: number): Promise<SuggestBudgetResponse | null> => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await fetch(`${API_BASE_URL}/suggest_budget?target_sales=${targetSales}`)
+      if (!response.ok) throw new Error("Erreur lors de la suggestion de budget")
+      const data: SuggestBudgetResponse = await response.json()
+      return data
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Une erreur est survenue")
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { suggest, loading, error }
 }

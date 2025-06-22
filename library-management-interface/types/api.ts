@@ -85,3 +85,14 @@ export interface Statistiques {
     count: number
   }>
 }
+
+export interface SuggestBudgetResponse {
+  status: string
+  target_sales: number
+  suggested_budgets: {
+    "TV Ad Budget ($)": number
+    "Radio Ad Budget ($)": number
+    "Newspaper Ad Budget ($)": number
+  }
+  model_info: string
+}

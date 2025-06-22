@@ -16,7 +16,7 @@ echo "🤖 Régénération du modèle ML..."
 cd backend
 
 # Installer les versions compatibles
-pip3 install --upgrade numpy==1.26.2 scikit-learn==1.4.0
+pip3 install --upgrade numpy==1.26.2 scikit-learn==1.4.0 pandas
 
 # Générer le nouveau modèle
 python3 train_model.py

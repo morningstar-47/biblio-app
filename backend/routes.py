@@ -57,8 +57,8 @@ def load_model():
             print("✅ Modèle ML chargé avec succès")
             
             # Test simple du modèle
-            test_pred = model.predict(np.array([[1.0]]))[0]
-            print(f"✅ Test du modèle: input=1.0, output={test_pred:.2f}")
+            test_pred = model.predict(np.array([[1.0, 1.0, 1.0]]))[0]
+            print(f"✅ Test du modèle: input=1.0, 1.0, 1.0, output={test_pred:.2f}")
             
         else:
             print("⚠️  Modèle ML non trouvé, fonctionnalité de prédiction désactivée")
@@ -332,3 +332,35 @@ def predict(val: float):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la prédiction: {str(e)}")
+
+# Route pour suggérer un budget à partir d'un objectif de ventes
+@router.get("/suggest_budget", tags=["ML"])
+def suggest_budget(target_sales: float):
+    """Proposer un budget TV, radio et presse pour atteindre un chiffre d'affaires donné."""
+    if model is None:
+        raise HTTPException(status_code=503, detail="Modèle ML non disponible")
+    try:
+        # Récupérer les coefficients et l'intercept
+        coef = model.coef_  # array de taille 3
+        intercept = model.intercept_
+        # Pour une solution simple, on répartit le budget de façon égale
+        coef_sum = np.sum(coef)
+        if coef_sum == 0:
+            raise Exception("Somme des coefficients nulle, inversion impossible.")
+        # Calcul du budget unique à répartir
+        budget = (target_sales - intercept) / coef_sum
+        # On force à zéro si négatif
+        budget = max(0, budget)
+        budgets = {
+            "TV Ad Budget ($)": round(float(budget), 2),
+            "Radio Ad Budget ($)": round(float(budget), 2),
+            "Newspaper Ad Budget ($)": round(float(budget), 2)
+        }
+        return {
+            "status": "success",
+            "target_sales": target_sales,
+            "suggested_budgets": budgets,
+            "model_info": "Répartition égale basée sur la régression linéaire"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la suggestion de budget: {str(e)}")
