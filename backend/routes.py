@@ -340,27 +340,62 @@ def suggest_budget(target_sales: float):
     if model is None:
         raise HTTPException(status_code=503, detail="Modèle ML non disponible")
     try:
-        # Récupérer les coefficients et l'intercept
         coef = model.coef_  # array de taille 3
         intercept = model.intercept_
-        # Pour une solution simple, on répartit le budget de façon égale
         coef_sum = np.sum(coef)
         if coef_sum == 0:
             raise Exception("Somme des coefficients nulle, inversion impossible.")
-        # Calcul du budget unique à répartir
-        budget = (target_sales - intercept) / coef_sum
-        # On force à zéro si négatif
-        budget = max(0, budget)
+        
+        # Calcul du budget total à répartir
+        total_budget = (target_sales - intercept) / coef_sum
+        total_budget = max(0, total_budget)
+
+        # Répartition proportionnelle selon les coefficients
         budgets = {
-            "TV Ad Budget ($)": round(float(budget), 2),
-            "Radio Ad Budget ($)": round(float(budget), 2),
-            "Newspaper Ad Budget ($)": round(float(budget), 2)
+            "TV Ad Budget ($)": round(float(total_budget * coef[1] / coef_sum), 2),
+            "Radio Ad Budget ($)": round(float(total_budget * coef[0] / coef_sum), 2),
+            "Newspaper Ad Budget ($)": round(float(total_budget * coef[2] / coef_sum), 2)
         }
+       
         return {
             "status": "success",
             "target_sales": target_sales,
             "suggested_budgets": budgets,
-            "model_info": "Répartition égale basée sur la régression linéaire"
+            "model_info": "Répartition proportionnelle basée sur la régression linéaire"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la suggestion de budget: {str(e)}")
+
+
+
+# @router.get("/suggest_budget", tags=["ML"])
+# def suggest_budget(target_sales: float):
+#     """Proposer un budget TV, radio et presse pour atteindre un chiffre d'affaires donné."""
+#     if model is None:
+#         raise HTTPException(status_code=503, detail="Modèle ML non disponible")
+#     try:
+#         # Récupérer les coefficients et l'intercept
+#         coef = model.coef_  # array de taille 3
+#         intercept = model.intercept_
+#         # Pour une solution simple, on répartit le budget de façon égale
+#         coef_sum = np.sum(coef)
+#         if coef_sum == 0:
+#             raise Exception("Somme des coefficients nulle, inversion impossible.")
+#         # Calcul du budget unique à répartir
+#         budget = (target_sales - intercept) / coef_sum
+#         # On force à zéro si négatif
+#         budget = max(0, budget)
+#         budgets = {
+#             "TV Ad Budget ($)": round(float(budget), 2),
+#             "Radio Ad Budget ($)": round(float(budget), 2),
+#             "Newspaper Ad Budget ($)": round(float(budget), 2)
+#         }
+#         return {
+#             "status": "success",
+#             "target_sales": target_sales,
+#             "suggested_budgets": budgets,
+#             "model_info": "Répartition égale basée sur la régression linéaire"
+#         }
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Erreur lors de la suggestion de budget: {str(e)}")
+       

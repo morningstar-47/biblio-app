@@ -45,7 +45,7 @@ export default function PredictionSection() {
         <div className="max-w-md mx-auto space-y-6">
           <div>
             <label htmlFor="prediction-input" className="block text-sm font-medium text-gray-700 mb-2">
-              Chiffre d'affaires cible ($)
+              Chiffre d'affaires cible (€)
             </label>
             <input
               id="prediction-input"
@@ -89,9 +89,9 @@ export default function PredictionSection() {
                 <h3 className="font-medium text-green-800">Budgets recommandés</h3>
               </div>
               <ul className="text-green-700 text-lg font-semibold space-y-1">
-                <li>TV : {result.tv} $</li>
-                <li>Radio : {result.radio} $</li>
-                <li>Presse écrite : {result.newspaper} $</li>
+                <li>TV : {result.tv} €</li>
+                <li>Radio : {result.radio} €</li>
+                <li>Presse écrite : {result.newspaper} €</li>
               </ul>
               <p className="text-green-700 text-sm mt-2">{result.info}</p>
             </div>
